@@ -1,7 +1,15 @@
 {
-  "functions": {
-    "api/*.js": {
-      "maxDuration": 60
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/upgrade.js",
+      "use": "@vercel/node"
     }
-  }
+  ],
+  "routes": [
+    {
+      "src": "/api/upgrade",
+      "dest": "api/upgrade.js"
+    }
+  ]
 }
