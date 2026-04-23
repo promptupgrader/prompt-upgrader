@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Upgrader — Turn Any Idea Into a World-Class Prompt</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Sora:wght@300;400;600;700&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#09090e;--s1:#111118;--s2:#16161f;--s3:#1c1c26;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --gold:#ffd24f;--gold-dim:rgba(255,210,79,0.08);--gold-med:rgba(255,210,79,0.16);
+  --text:#eeeae2;--muted:rgba(238,234,226,0.48);--hint:rgba(238,234,226,0.2);
+  --red:#e24b4a;--r:10px;--r2:14px;
+}
+body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.wrap{max-width:800px;margin:0 auto;padding:36px 20px 64px}
+
+/* ── HEADER ── */
+.hdr{text-align:center;padding-bottom:32px}
+.pill{display:inline-flex;align-items:center;gap:7px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.2em;color:var(--gold);background:var(--gold-dim);border:1px solid rgba(255,210,79,.16);padding:6px 16px;border-radius:100px;margin-bottom:18px;text-transform:uppercase}
+.pill-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+h1{font-size:32px;font-weight:700;letter-spacing:-.04em;line-height:1.18}
+h1 em{font-style:normal;color:var(--gold)}
+.sub{margin-top:10px;font-size:13.5px;color:var(--muted);font-weight:300;line-height:1.6;max-width:500px;margin-left:auto;margin-right:auto}
+
+/* ── LANGUAGE FLAGS ── */
+.lang-row{display:flex;justify-content:center;flex-wrap:wrap;gap:7px;margin-top:18px}
+.flag-chip{display:flex;align-items:center;gap:5px;font-size:11px;padding:4px 12px;border-radius:100px;background:var(--s2);border:1px solid var(--border);color:var(--muted);font-family:'Sora',sans-serif;transition:all .2s;cursor:default}
+.flag-chip:hover{border-color:rgba(255,210,79,.2);color:var(--text)}
+.flag-chip span{font-size:14px}
+
+/* ── STEP INDICATOR ── */
+.steps{display:flex;align-items:center;gap:0;margin-bottom:20px}
+.step-item{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--hint);font-family:'JetBrains Mono',monospace}
+.step-item.active{color:var(--gold)}
+.step-item.done{color:var(--muted)}
+.step-num{width:22px;height:22px;border-radius:50%;border:1px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0}
+.step-divider{flex:1;height:1px;background:var(--border);margin:0 10px}
+
+/* ── CARD ── */
+.card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r2);padding:22px 24px;margin-bottom:14px;transition:border-color .2s}
+.card:focus-within{border-color:rgba(255,210,79,.18)}
+.c-hdr{display:flex;align-items:flex-start;gap:13px;margin-bottom:16px}
+.num{width:32px;height:32px;flex-shrink:0;border-radius:50%;background:var(--gold-dim);border:1px solid rgba(255,210,79,.2);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--gold)}
+.c-title{font-size:15px;font-weight:600;line-height:1.3}
+.c-desc{font-size:12px;color:var(--muted);font-weight:300;margin-top:3px;line-height:1.5}
+
+/* ── TEXTAREA ── */
+textarea{width:100%;min-height:120px;background:var(--s2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:'Sora',sans-serif;font-size:15px;line-height:1.65;padding:14px 16px;resize:vertical;outline:none;transition:border .2s}
+textarea:focus{border-color:rgba(255,210,79,.26)}
+textarea::placeholder{color:var(--hint);line-height:1.7}
+
+/* ── EXAMPLE CHIPS ── */
+.chip-label{font-size:11px;color:var(--hint);font-family:'JetBrains Mono',monospace;letter-spacing:.08em;margin:14px 0 8px;text-transform:uppercase}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{font-size:11.5px;padding:5px 13px;border-radius:100px;background:var(--s2);border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all .15s;font-family:'Sora',sans-serif}
+.chip:hover{background:var(--gold-dim);border-color:rgba(255,210,79,.26);color:var(--gold)}
+
+/* ── MAIN BUTTON ── */
+.btn-main{width:100%;padding:16px;background:var(--gold);color:#150e00;font-family:'Sora',sans-serif;font-size:15px;font-weight:700;border:none;border-radius:var(--r);cursor:pointer;transition:all .18s;position:relative;overflow:hidden;margin-bottom:6px;letter-spacing:.01em}
+.btn-main:hover{background:#ffe068;transform:translateY(-1px);box-shadow:0 8px 32px rgba(255,210,79,.15)}
+.btn-main:active{transform:none;box-shadow:none}
+.btn-main:disabled{background:rgba(255,210,79,.2);color:rgba(21,14,0,.38);cursor:not-allowed;transform:none;box-shadow:none}
+.loader-bar{position:absolute;top:0;left:-100%;height:3px;background:rgba(0,0,0,.15);width:60%;border-radius:2px;animation:slide 1.5s ease-in-out infinite}
+@keyframes slide{0%{left:-60%}100%{left:110%}}
+
+/* ── ERROR ── */
+.err-box{background:rgba(226,75,74,.09);border:1px solid rgba(226,75,74,.2);border-radius:8px;padding:13px 15px;font-size:13px;color:#f09595;display:none;margin-top:8px;line-height:1.6}
+.err-box.show{display:block}
+
+/* ── RESULTS ── */
+.results{display:none}
+.results.show{display:block}
+.divider{height:1px;background:var(--border);margin:20px 0}
+
+/* ── GAP TAGS ── */
+.tags{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
+.tag{font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:600;padding:4px 11px;border-radius:6px;display:flex;align-items:center;gap:5px}
+.t-red{background:rgba(226,75,74,.11);color:#f09595;border:1px solid rgba(226,75,74,.2)}
+.t-amb{background:rgba(239,159,39,.1);color:#fac775;border:1px solid rgba(239,159,39,.2)}
+.t-blue{background:rgba(55,138,221,.1);color:#85b7eb;border:1px solid rgba(55,138,221,.2)}
+.t-grn{background:rgba(29,158,117,.1);color:#5dcaa5;border:1px solid rgba(29,158,117,.2)}
+.t-pur{background:rgba(127,119,221,.1);color:#afa9ec;border:1px solid rgba(127,119,221,.2)}
+.t-ok{background:rgba(29,158,117,.08);color:#5dcaa5;border:1px solid rgba(29,158,117,.16)}
+
+/* ── ANALYSIS TEXT ── */
+.analysis{font-size:13.5px;color:var(--muted);line-height:1.7;padding:14px 16px;background:var(--s2);border-radius:8px;border-left:2px solid rgba(255,210,79,.24);margin-bottom:18px}
+
+/* ── SCORE BARS ── */
+.score-wrap{display:flex;flex-direction:column;gap:10px}
+.score-row{display:flex;align-items:center;gap:12px}
+.s-lbl{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);width:58px;flex-shrink:0}
+.s-track{flex:1;height:5px;background:var(--s3);border-radius:10px;overflow:hidden}
+.s-fill{height:100%;border-radius:10px;transition:width 1s cubic-bezier(.4,0,.2,1)}
+.s-red{background:var(--red)}
+.s-gold{background:var(--gold)}
+.s-num{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;width:52px;text-align:right}
+.n-red{color:#f09595}
+.n-gold{color:var(--gold)}
+
+/* ── OUTPUT BOX ── */
+.out-box{background:var(--s2);border:1px solid rgba(255,210,79,.15);border-radius:var(--r);padding:20px;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.85;color:var(--text);white-space:pre-wrap;word-break:break-word;min-height:80px}
+.out-box.typing::after{content:'▋';animation:blink .65s step-end infinite;color:var(--gold)}
+@keyframes blink{50%{opacity:0}}
+
+/* ── COPY SECTION ── */
+.copy-section{margin-top:16px}
+.copy-hint{font-size:10.5px;color:var(--hint);font-family:'JetBrains Mono',monospace;margin-bottom:9px;text-align:center;letter-spacing:.08em;text-transform:uppercase}
+.act-row{display:flex;gap:10px}
+.btn-copy{flex:1;padding:14px;background:var(--gold-med);border:1px solid rgba(255,210,79,.32);border-radius:var(--r);color:var(--gold);font-family:'Sora',sans-serif;font-size:14.5px;font-weight:700;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-copy:hover{background:rgba(255,210,79,.24)}
+.btn-copy.ok{background:rgba(29,158,117,.13);border-color:rgba(29,158,117,.3);color:#5dcaa5}
+.btn-reset{padding:14px 20px;background:transparent;border:1px solid var(--border);border-radius:var(--r);color:var(--muted);font-family:'Sora',sans-serif;font-size:13px;cursor:pointer;transition:all .15s}
+.btn-reset:hover{border-color:var(--border2);color:var(--text)}
+
+/* ── MANUAL COPY FALLBACK ── */
+.manual-copy{display:none;margin-top:12px;background:var(--s2);border:1px solid rgba(239,159,39,.22);border-radius:var(--r);padding:14px}
+.manual-copy.show{display:block}
+.manual-copy p{font-size:11.5px;color:#fac775;font-family:'JetBrains Mono',monospace;margin-bottom:8px;line-height:1.5}
+.manual-copy textarea{min-height:70px;font-size:11.5px;font-family:'JetBrains Mono',monospace;color:var(--muted);background:var(--s3);border-color:rgba(255,210,79,.1);border-radius:6px;resize:none;cursor:text}
+
+/* ── API KEY CARD ── */
+.key-status{display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:11px;margin-top:12px;padding:10px 14px;border-radius:8px;background:var(--s3);border:1px solid var(--border)}
+.key-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.key-dot.red{background:#e24b4a}
+.key-dot.green{background:#1d9e75}
+.key-input-wrap{position:relative;margin-top:10px}
+.key-input-wrap input{width:100%;background:var(--s2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;padding:12px 48px 12px 14px;outline:none;transition:border .2s;letter-spacing:.04em}
+.key-input-wrap input:focus{border-color:rgba(255,210,79,.3)}
+.key-input-wrap input::placeholder{color:var(--hint);letter-spacing:.02em}
+.key-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:15px;padding:4px;transition:color .15s}
+.key-toggle:hover{color:var(--text)}
+.key-link{font-size:11.5px;color:rgba(255,210,79,.6);text-decoration:none;font-family:'JetBrains Mono',monospace;transition:color .15s}
+.key-link:hover{color:var(--gold)}
+.key-note{font-size:11px;color:var(--hint);font-family:'JetBrains Mono',monospace;margin-top:8px;line-height:1.6}
+
+/* ── FOOTER ── */
+.footer{text-align:center;margin-top:48px;padding-top:24px;border-top:1px solid var(--border)}
+.footer-logo{font-size:16px;font-weight:700;color:rgba(238,234,226,.65);font-family:'Sora',sans-serif;letter-spacing:-.01em}
+.footer-logo span{color:var(--gold)}
+.footer-tagline{font-size:12px;color:var(--hint);font-family:'Sora',sans-serif;margin-top:6px;font-weight:300;line-height:1.6}
+.footer-meta{font-size:10px;color:rgba(238,234,226,.12);font-family:'JetBrains Mono',monospace;margin-top:10px;letter-spacing:.1em}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="pill"><span class="pill-dot"></span>Personal AI Prompt Lab</div>
+    <h1>Transform Any Idea Into a<br><em>World-Class Prompt</em> ⚡</h1>
+    <p class="sub">Type your raw thought in <strong style="color:var(--text);font-weight:600">any language</strong>. Our AI understands it, finds the gaps, and upgrades it into a perfect, structured prompt — ready for Claude or ChatGPT.</p>
+    <div class="lang-row">
+      <div class="flag-chip"><span>🇮🇳</span> Hindi</div>
+      <div class="flag-chip"><span>🇮🇳</span> Gujarati</div>
+      <div class="flag-chip"><span>🌐</span> Hinglish</div>
+      <div class="flag-chip"><span>🇬🇧</span> English</div>
+      <div class="flag-chip"><span>🇪🇸</span> Spanish</div>
+      <div class="flag-chip"><span>🇸🇦</span> Arabic</div>
+      <div class="flag-chip"><span>🇫🇷</span> French</div>
+      <div class="flag-chip"><span>🌍</span> + Any Language</div>
+    </div>
+  </div>
+
+  <!-- STEP 1 — INPUT -->
+  <div class="card">
+    <div class="c-hdr">
+      <div class="num">1</div>
+      <div>
+        <div class="c-title">Enter Your Raw Question or Idea</div>
+        <div class="c-desc">Write freely in any language — no formatting needed. The messier, the better. We'll handle the rest.</div>
+      </div>
+    </div>
+    <textarea id="rawInput" placeholder="Examples:&#10;• I want to grow my YouTube channel but don't know what to post...&#10;• How do I validate and grow my business idea from scratch...&#10;• I want to learn coding but don't know where to start...&#10;• Help me write a better email for my job interview..."></textarea>
+    <p class="chip-label">Quick examples — click to try</p>
+    <div class="chips">
+      <div class="chip" onclick="fill('I want to grow my YouTube Shorts channel but have no idea what content to post next')">▶ YouTube growth</div>
+      <div class="chip" onclick="fill('Help me turn my business idea into a real plan')">💡 Business plan</div>
+      <div class="chip" onclick="fill('I need to write a professional email for a job interview')">📧 Job interview email</div>
+      <div class="chip" onclick="fill('I want to learn Python programming as a complete beginner')">🐍 Learn Python</div>
+      <div class="chip" onclick="fill('How do I get more followers and engagement on Instagram')">📱 Instagram growth</div>
+    </div>
+  </div>
+
+  <button class="btn-main" id="upBtn" onclick="run()">⚡ Upgrade My Prompt — Works in Any Language</button>
+  <div class="err-box" id="errBox"></div>
+
+  <!-- RESULTS -->
+  <div class="results" id="res">
+    <div class="divider"></div>
+
+    <!-- STEP 2 — ANALYSIS -->
+    <div class="card">
+      <div class="c-hdr">
+        <div class="num">2</div>
+        <div>
+          <div class="c-title">Gap Analysis — What Was Missing</div>
+          <div class="c-desc">Every weak prompt has hidden gaps. Here's exactly what we found and fixed in yours.</div>
+        </div>
+      </div>
+      <div class="tags" id="tagRow"></div>
+      <div class="analysis" id="analysisText"></div>
+      <div class="score-wrap">
+        <div class="score-row">
+          <span class="s-lbl">Before</span>
+          <div class="s-track"><div class="s-fill s-red" id="sb" style="width:0%"></div></div>
+          <span class="s-num n-red" id="sbn">—</span>
+        </div>
+        <div class="score-row">
+          <span class="s-lbl">After</span>
+          <div class="s-track"><div class="s-fill s-gold" id="sa" style="width:0%"></div></div>
+          <span class="s-num n-gold" id="san">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3 — UPGRADED PROMPT -->
+    <div class="card">
+      <div class="c-hdr">
+        <div class="num">3</div>
+        <div>
+          <div class="c-title">Your Upgraded Prompt — Ready to Use</div>
+          <div class="c-desc">Structured, specific, and universally clear. Paste it directly into Claude, ChatGPT, or any AI.</div>
+        </div>
+      </div>
+      <div class="out-box" id="outBox"></div>
+      <div class="copy-section">
+        <p class="copy-hint">— Copy once. Paste anywhere. Get better answers instantly. —</p>
+        <div class="act-row">
+          <button class="btn-copy" id="copyBtn" onclick="doCopy()">📋 &nbsp; Copy Upgraded Prompt</button>
+          <button class="btn-reset" onclick="resetAll()">↺ Start Over</button>
+        </div>
+        <div class="manual-copy" id="manualBox">
+          <p>⚠ Auto-copy was blocked by your browser. Select all the text below and press Ctrl+C (or Cmd+C on Mac):</p>
+          <textarea id="manualText" readonly onclick="this.select();this.focus()"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-logo">Prompt <span>Upgrader</span> ⚡</div>
+    <div class="footer-tagline">Your personal AI prompt engine — built to make every question you ask<br>10x more powerful, clear, and effective.</div>
+    <div class="footer-meta">UNDERSTANDS ALL WORLD LANGUAGES · INSTANT UPGRADES · TURN WEAK QUESTIONS INTO POWERFUL PROMPTS</div>
+  </div>
+
+</div>
+<script>
+// After Railway deploy, replace this with your actual Railway URL
+const BACKEND_URL = 'https://YOUR-APP-NAME.up.railway.app/upgrade';
+
+const TAGS={VAGUE:['t-red','⚠'],NO_CONTEXT:['t-amb','📭'],NO_GOAL:['t-blue','🎯'],NO_SCOPE:['t-grn','📐'],NO_TONE:['t-pur','🎭'],AMBIGUOUS:['t-red','❓'],TOO_SHORT:['t-amb','📏']};
+
+function fill(t){document.getElementById('rawInput').value=t}
+function setErr(m){const b=document.getElementById('errBox');b.innerHTML=m?'❌ &nbsp;'+m.replace(/\. /g,'.<br><br>'):'';b.classList.toggle('show',!!m)}
+
+async function run(){
+  const raw=document.getElementById('rawInput').value.trim();
+  if(!raw){const ta=document.getElementById('rawInput');ta.style.borderColor='rgba(226,75,74,.5)';setTimeout(()=>ta.style.borderColor='',1600);return}
+  setErr('');
+  const btn=document.getElementById('upBtn');
+  btn.disabled=true;
+  btn.innerHTML='<div class="loader-bar"></div>🔄 Analyzing your prompt...';
+  document.getElementById('res').classList.remove('show');
+  document.getElementById('manualBox').classList.remove('show');
+  try{
+    const resp=await fetch(BACKEND_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:raw})});
+    const data=await resp.json().catch(()=>{throw new Error('Could not connect — check your internet and try again')});
+    if(resp.status===429){throw new Error(data.error||'Daily limit reached. Come back tomorrow!')}
+    if(!resp.ok){throw new Error(data.error||'Something went wrong — please try again')}
+    const txt=data.content?.find(b=>b.type==='text')?.text||'';
+    let r;
+    try{r=JSON.parse(txt.replace(/```json|```/g,'').trim())}catch(pe){throw new Error('Unexpected response — please try again')}
+    render(r);
+  }catch(err){setErr(err.message)}
+  finally{btn.disabled=false;btn.innerHTML='⚡ Upgrade My Prompt — Works in Any Language'}
+}
+
+function render(r){
+  const row=document.getElementById('tagRow');
+  row.innerHTML='';
+  (r.gaps||[]).forEach(g=>{const[c,i]=TAGS[g]||['t-ok','✓'];row.innerHTML+=`<span class="tag ${c}"><span>${i}</span>${g}</span>`});
+  if(!r.gaps?.length)row.innerHTML='<span class="tag t-ok">✓ Solid base — enhanced further</span>';
+  document.getElementById('analysisText').textContent=r.analysis||'';
+  const sb=Math.min(Math.max(r.score_before||20,1),100);
+  const sa=Math.min(Math.max(r.score_after||90,1),100);
+  setTimeout(()=>{
+    document.getElementById('sb').style.width=sb+'%';
+    document.getElementById('sa').style.width=sa+'%';
+    document.getElementById('sbn').textContent=sb+'/100';
+    document.getElementById('san').textContent=sa+'/100';
+  },150);
+  const box=document.getElementById('outBox');
+  box.textContent='';box.classList.add('typing');
+  const txt=r.upgraded_prompt||'';let i=0;
+  function type(){if(i<txt.length){box.textContent+=txt[i++];setTimeout(type,8)}else box.classList.remove('typing')}
+  type();
+  const cb=document.getElementById('copyBtn');cb.innerHTML='📋 &nbsp; Copy Upgraded Prompt';cb.classList.remove('ok');
+  document.getElementById('res').classList.add('show');
+  setTimeout(()=>document.getElementById('res').scrollIntoView({behavior:'smooth',block:'start'}),100);
+}
+
+async function doCopy(){
+  const txt=document.getElementById('outBox').textContent;
+  if(!txt||txt.length<5)return;
+  const btn=document.getElementById('copyBtn');
+  const manual=document.getElementById('manualBox');
+  if(navigator?.clipboard?.writeText){
+    try{await navigator.clipboard.writeText(txt);showOk(btn);manual.classList.remove('show');return}catch(e){}
+  }
+  try{
+    const ta=document.createElement('textarea');
+    ta.value=txt;ta.style.cssText='position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none';
+    document.body.appendChild(ta);ta.focus();ta.select();
+    const ok=document.execCommand('copy');
+    document.body.removeChild(ta);
+    if(ok){showOk(btn);manual.classList.remove('show');return}
+  }catch(e){}
+  document.getElementById('manualText').value=txt;
+  manual.classList.add('show');
+  setTimeout(()=>document.getElementById('manualText').select(),50);
+  btn.innerHTML='⚠ &nbsp;Use the text box below to copy';
+}
+
+function showOk(btn){
+  btn.innerHTML='✅ &nbsp;Copied to Clipboard!';btn.classList.add('ok');
+  setTimeout(()=>{btn.innerHTML='📋 &nbsp; Copy Upgraded Prompt';btn.classList.remove('ok')},2500);
+}
+
+function resetAll(){
+  document.getElementById('rawInput').value='';
+  document.getElementById('res').classList.remove('show');
+  document.getElementById('sb').style.width='0%';document.getElementById('sa').style.width='0%';
+  document.getElementById('manualBox').classList.remove('show');
+  setErr('');document.getElementById('rawInput').focus();
+}
+</script>
+</body>
+</html>
