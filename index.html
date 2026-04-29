@@ -321,7 +321,7 @@ function friendlyError(status, msg){
 }
  
 async function callAPI(prompt, extraInstruction, modelName){
-  const model = modelName || 'claude-sonnet-4-20250514';
+  const model = modelName || 'openrouter/auto';
   const sysPrompt = extraInstruction ? SYS+'\n\n'+extraInstruction : SYS;
   const resp = await fetch('https://prompt-upgrader-api.shubhptlwork.workers.dev',{
     method:'POST',
@@ -430,8 +430,8 @@ async function run(){
   document.getElementById('manualBox').classList.remove('show');
  
   const EXTRA='CRITICAL: Return ONLY the raw JSON object. No text before or after. No code fences.';
-  // Model rotation — haiku is separate server pool, less likely to be overloaded
-  const models=['claude-sonnet-4-20250514','claude-haiku-4-5-20251001','claude-haiku-4-5-20251001','claude-sonnet-4-20250514','claude-haiku-4-5-20251001'];
+  // Model rotation — haiku is separate server pool, less likely to be overloaded  
+  const models=['openrouter/auto','openrouter/auto','openrouter/auto','openrouter/auto','openrouter/auto'];
   const extras=[null,null,EXTRA,EXTRA,EXTRA];
   // Countdown seconds per retry round: 5, 8, 12, 18, 25
   const waits=[5,8,12,18,25];
